@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
     },
     sitemap: [
         `${baseUrl}/sitemap.xml`,
-        "https://plugins.astrbot.app/sitemap.xml",
+        "https://plugins.astrbot.tech/sitemap.xml",
         "https://blog.astrbot.app/sitemap.xml",
         "https://docs.astrbot.app/sitemap.xml",
     ],
