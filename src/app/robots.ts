@@ -1,32 +1,17 @@
 import type { MetadataRoute } from "next";
-
-function getBaseUrl() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  const vercelUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`.replace(/\/$/, "")
-    : undefined;
-  const env = process.env.VERCEL_ENV || process.env.NODE_ENV; // 'production' | 'preview' | 'development'
-
-  if (env !== "production" && vercelUrl) return vercelUrl;
-  if (env === "production" && siteUrl) return siteUrl;
-  if (vercelUrl) return vercelUrl;
-  if (siteUrl) return siteUrl;
-  return "http://localhost:3000";
-}
+import { ALLOW_INDEXING, EXTERNAL_SITEMAPS, getBaseUrl } from "../config/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = getBaseUrl();
+  const rules = ALLOW_INDEXING
+    ? { userAgent: "*", allow: "/" }
+    : { userAgent: "*", disallow: "/" };
+
+  const sitemap = ALLOW_INDEXING
+    ? [`${getBaseUrl()}/sitemap.xml`, ...EXTERNAL_SITEMAPS]
+    : undefined;
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: [
-        `${baseUrl}/sitemap.xml`,
-        "https://plugins.astrbot.tech/sitemap.xml",
-        "https://blog.astrbot.app/sitemap.xml",
-        "https://docs.astrbot.app/sitemap.xml",
-    ],
+    rules,
+    ...(sitemap ? { sitemap } : {}),
   };
 }

@@ -11,6 +11,7 @@ import {
   getSiteMeta,
   OG_LOCALE_MAP,
 } from "../components/i18n/locale";
+import { ALLOW_INDEXING } from "../config/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -30,13 +31,26 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale: Locale = normalizeLocale(rawCookie) ?? detectLocaleFromAccept(accept);
   const { title, description } = getSiteMeta(locale);
 
+  const robots = ALLOW_INDEXING
+    ? { index: true, follow: true }
+    : {
+        index: false,
+        follow: false,
+        nocache: true,
+        googleBot: {
+          index: false,
+          follow: false,
+          noimageindex: true,
+        },
+      };
+
   return {
     metadataBase: new URL(SITE_URL),
     title,
     description,
     icons: { icon: "/logo.png" },
     alternates: { canonical: SITE_URL },
-    robots: { index: true, follow: true },
+    robots,
     openGraph: {
       title,
       description,
