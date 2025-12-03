@@ -1,0 +1,81 @@
+name: Create clean branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Name of the clean branch to create'
+        required: true
+        default: 'clean-branch'
+      source_path:
+        description: 'Path inside repo to copy into the clean branch (optional)'
+        required: false
+        default: ''
+      commit_message:
+        description: 'Commit message for the new branch'
+        required: true
+        default: 'Initialize clean branch'
+      force:
+        description: 'Force push to remote if branch exists (true/false)'
+        required: true
+        default: 'true'
+
+jobs:
+  create_clean_branch:
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ github.event.inputs.branch }}
+      SOURCE_PATH: ${{ github.event.inputs.source_path }}
+      COMMIT_MSG: ${{ github.event.inputs.commit_message }}
+      FORCE_PUSH: ${{ github.event.inputs.force }}
+    steps:
+      - name: Checkout repository (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare git author
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Create orphan branch and prepare contents
+        run: |
+          set -eux
+          BRANCH="${BRANCH}"
+          # create orphan branch (no history)
+          if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+            # If branch exists locally, delete it first to ensure a clean orphan create
+            git branch -D "$BRANCH" || true
+          fi
+          git checkout --orphan "$BRANCH"
+
+          # Remove all files from index and working tree
+          git rm -rf . || true
+
+          # If user provided a source_path, copy its contents into root of new branch
+          if [ -n "${SOURCE_PATH}" ]; then
+            if [ -d "${SOURCE_PATH}" ]; then
+              # copy hidden files too
+              shopt -s dotglob || true
+              cp -a "${SOURCE_PATH}/." .
+            else
+              echo "source_path '${SOURCE_PATH}' not found or is not a directory; creating empty branch"
+            fi
+          fi
+
+          # ensure there is at least one file to commit
+          if [ -z "$(ls -A . 2>/dev/null || true)" ]; then
+            echo ".gitkeep" > .gitkeep
+          fi
+
+          git add -A
+          git commit -m "${COMMIT_MSG}"
+
+      - name: Push clean branch to origin
+        env:
+          GIT_PUSH_ARGS: ${{ github.event.inputs.force == 'true' && '--force' || '' }}
+        run: |
+          set -eux
+          # Use the GITHUB_TOKEN provided to the runner; this usually works for ordinary repos.
+          git push origin "HEAD:${BRANCH}" $GIT_PUSH_ARGS
