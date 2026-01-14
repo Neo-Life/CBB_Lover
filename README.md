@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://astrbot.qzz.io">
-    <img src="https://raw.githubusercontent.com/Neo-Life/CBB_Lover/master/public/AstrBot_AI.png" alt="AstrBot AI" width="100%">
+    <img src="https://raw.githubusercontent.com/LandfillLand/CBB_Shower/master/public/AstrBot_AI.png" alt="AstrBot AI" width="100%">
   </a>
   
 # [Crystal Blue Bloom](https://plugins.astrbot.qzz.io)
@@ -12,9 +12,4 @@ A prism lets star-sparks through, rousing the dream’s soft state.
 Shattered shadows cleave the long night — peerless beauty rises now;  
 Blue crystal blooms alone, its lucid sheen reflected on the glass.  
 
-## By the way 🤓👆
-
-A discarded concept from the AstrBot landing page, too beautiful to be deployed.    
-     
-</p>
 
